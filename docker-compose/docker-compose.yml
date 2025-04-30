@@ -1,7 +1,7 @@
 services:
-  employees:
-    image: pranitapandharinathpawar422/first:1.0.0
-    container_name: employees
+  first:
+    image: **
+    container_name: first
     ports:
       - 8090:8090
     depends_on:
@@ -17,25 +17,21 @@ services:
     networks:
       - ems
 
-  configserver:
-    image: pranitapandharinathpawar422/config-server:1.0.1
-    container_name: configserver
+  course-service:
+    image: **
+    container_name: course-service
     ports:
-      - 8071:8071
-    healthcheck:
-      test: "curl --fail --silent localhost:8071/actuator/readiness | grep UP || exit 0"
-      timeout: 10s
-      retries: 5
-      interval: 10s
-      start_period: 5s
+      - 8080:8080
+    depends_on:
+      configserver:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      - H2_OPTIONS=-webAllowOthers
     deploy:
       resources:
         limits:
           memory: 700m
     networks:
       - ems
-
-
-networks:
-  ems:
-    driver: "bridge"
